@@ -1,0 +1,184 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Routeplanner - Zoekscherm</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!--[if lte IE 8]>
+    <script src="../js/ie/html5shiv.js"></script><![endif]-->
+    <link rel="stylesheet" href="../../../css/main.css"/>
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="../../../css/ie8.css"/><![endif]-->
+    <link
+            rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+            integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+            crossorigin=""
+    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
+    <!-- Scripts -->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/jquery.poptrox.min.js"></script>
+    <script src="../js/skel.min.js"></script>
+    <script src="../js/util.js"></script>
+    <!--[if lte IE 8]>
+    <script src="../js/ie/respond.min.js"></script><![endif]-->
+    <script src="https://kit.fontawesome.com/4cdb5c7a5f.js" crossorigin="anonymous"></script>
+    <script src="../js/main.js"></script>
+
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin="">
+
+    </script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+
+    <style>
+        #issMap {
+            height: 360px;
+        }
+    </style>
+</head>
+<body id="top" style="background-color:#d1e2b0;text-align:center">>
+
+
+<!-- Header -->
+<header id="header">
+    <h1><a href="index.php"><strong>Routeplanner</strong></a></h1>
+</header>
+
+<!-- Main -->
+<div id="main">
+    <!-- Welcome -->
+    <section id="welcome">
+
+
+        <h1 class="my-5">Hi, <b><?php echo htmlspecialchars($_SESSION["username"]); ?></b> Welkom op onze routeplanner.</h1>
+
+        <header class="major">
+            <h2>Routeplanner voor natuurliefhebbers</h2>
+        </header>
+        <p>Een routeplanner voor elke fietsweg in België <br> Kies een start en eindlocatie</p>
+
+    </section>
+
+
+    <h1>Kies een route</h1>
+
+    <p>
+        latitude: <span id="lat"></span>°<br />
+        longitude: <span id="lon"></span>°
+    </p>
+
+
+    <div class="left"><span id="gui-search-source-label" class="input-label nowrap">Startbestemming:</span></div>
+    <div id="start"/><input id="gui-input-source" class="input-box" type="text" maxlength="200" value="" title="Geef startbestemming op" /></div>
+
+
+
+    <div class="left"><span id="gui-search-destination-label" class="input-label nowrap">Eindbestemming:</span></div>
+    <div id="einde"/><input id="gui-input-destination" class="input-box" type="text" maxlength="200" value="" title="Geef eindbestemming op" /></div>
+    </p>
+
+
+    <div id="issMap"></div>
+
+    <script>
+        // Making a map and tiles
+        const mymap = L.map('issMap').setView([0, 0], 1);
+        const attribution =
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+        const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const tiles = L.tileLayer(tileUrl, { attribution });
+        tiles.addTo(mymap);
+
+        /*
+
+        L.Routing.control({
+            waypoints: [
+                L.latLng(57.74, 11.94),
+                L.latLng(57.6792, 11.949)
+            ]}).addTo(map);
+*/
+        // Making a marker with a custom icon
+        const issIcon = L.icon({
+            iconUrl: 'pointer.png',
+            iconSize: [20, 14],
+            iconAnchor: [25, 16]
+        });
+        const marker = L.marker([0, 0], { icon: issIcon }).addTo(mymap);
+
+        /*
+        async function getRoute() {
+            const response = await fetch(api_url);
+            const data = await response.json();
+            const { latitude, longitude } = data;
+
+
+         const marker = L.marker([0, 0], { icon: issIcon }).addTo(mymap);
+        //let marker = L.featureGroup().addTo(mymap);
+        //var marker =
+
+            let attributes = event.layer.properties;
+            console.log(attributes.name, attributes.desctiption, attributes.othervars);
+            // do some stuff…
+        });
+        /*function addMarker(e){
+// Add marker to map at click location; add popup window
+            var newMarker = new L.marker(e.latlng).addTo(map);
+
+        };
+        */
+
+        const api_url = 'https://api.wheretheiss.at/v1/satellites/25544';
+
+        let firstTime = true;
+
+        async function getISS() {
+            const response = await fetch(api_url);
+            const data = await response.json();
+            const { latitude, longitude } = data;
+
+            marker.setLatLng([latitude, longitude]);
+            if (firstTime) {
+                mymap.setView([latitude, longitude], 2);
+                firstTime = false;
+            }
+            document.getElementById('lat').textContent = latitude.toFixed(3);
+            document.getElementById('lon').textContent = longitude.toFixed(3);
+        }
+        //http://127.0.0.1:5000/route/v1/biking/51.0094,3.7846;51.0354,3.7686;51.0387,3.8153?steps=true&geometries=geojson&overview=full
+
+
+
+
+        if (data){
+
+        }
+        getISS();
+
+        setInterval(getISS, 1000);
+    </script>
+
+
+
+</div>
+
+<!-- Footer -->
+<footer id="footer">
+    <ul class="icons">
+        <li><a href="http://www.events.be/" class="icon fa-globe"><span class="label">Website</span></a></li>
+        <li><a href="mailto:info@events.be" class="icon fa-envelope-o"><span class="label">Email</span></a></li>
+    </ul>
+    <ul class="copyright">
+        <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+        <li><a href="login.php">Uiloggen</a></li>
+    </ul>
+</footer>
+
+</body>
+</html>

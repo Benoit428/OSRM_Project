@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+    web:
+        container_name: nginx
+        image: nginx:latest
+        restart: always
+        ports:
+            - "8080:80"
+        volumes:
+            ##- ./src:/usr/share/nginx/html
+            - ./code/frontend_pages:/code/nginx
+          ##    - ./site.conf:/etc/nginx/conf.d/default.conf
+        links:
+            - php
+        depends_on:
+            - php
+    php:
+        container_name: php
+        #image: php:7.4-fpm
+        build: ""
+        volumes:
+            - ./code:/code
+        ports:
+            - "9000:9000"
+        links:
+            - mysql
+    osrm:
+        container_name: osrm
+        image: osrm/osrm-backend
+        restart: always
+        ports:
+            - "5000:5000"
+        volumes:
+            - ./data:/data
+        command: "osrm-routed --max-matching-size 1000 --max-table-size 1000 --max-viaroute-size 1000 --algorithm mld /data/belgium-latest.osrm"
+    mysql:
+        image: mysql:latest
+        restart: always
+        ports:
+        - "3307:3306"
+
+        volumes:
+         - ./mysql-database/rapid.sql/routeplannerDb.sql:/docker-entrypoint-initdb.d/routeplannerDb.sql
+        environment:
+            - MYSQL_DATABASE=routeplanner
+            - MYSQL_USER=user
+            - MYSQL_PASSWORD=Azerty123
+            - MYSQL_ROOT_PASSWORD=root
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: pma
+        links:
+            - mysql
+        ports:
+            - "8000:80"
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+            PMA_ARBITRARY: 1
+            PMA_USER: root
+            PMA_PASSWORD: root
+        restart: always
+        depends_on:
+            - mysql
